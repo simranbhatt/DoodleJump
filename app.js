@@ -121,7 +121,7 @@ function jump() {
     upTimer = setInterval(function () {
         doodlerBottomSpace += 20;
         doodler.style.bottom = doodlerBottomSpace + 'px';
-        if(doodlerBottomSpace > startPoint + 300) {
+        if(doodlerBottomSpace > startPoint + 300 || doodlerBottomSpace > gridHeight) {
             fall();
         }
     }, 20);
