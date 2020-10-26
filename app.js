@@ -1,5 +1,7 @@
 const grid = document.querySelector('.grid');
 const doodler = document.createElement('div');
+const scoreCard = document.getElementById('score');
+const gameEndMessage = document.getElementById('gameEndMessage');
 let doodlerLeftSpace = 50;
 let doodlerBottomSpace = 300;
 let platformCount = 5;
@@ -11,11 +13,14 @@ let startPoint = 150;
 let isRight = false;
 let isLeft = false;
 let score = 0;
+const gridStyle = window.getComputedStyle(grid);
+const gridWidth = parseInt(gridStyle.width, 10); //getting grid width from style.css and parsing only the number part (e.g. "400" instead of "400px") 
+var gridHeight = parseInt(gridStyle.height, 10);
 
 class Platform {
     constructor(platformBottom) {
         this.bottom = platformBottom;
-        this.left = Math.random() * 310; //placing it somewhere between the grid width - platform width
+        this.left = Math.random() * (gridWidth - 80); //placing it somewhere between the grid width - platform width
         this.platform = document.createElement('div');
 
         const platform = this.platform;
@@ -36,8 +41,8 @@ function createDoodler() {
 }
 
 function createPlatform () {
-    for(let i = 0; i < platformCount; i++) {
-        let platformGap = 600 / platformCount; //height of grid divided by number of platforms
+    for(let i = 0; i < platformCount; i++) {  
+        let platformGap = gridHeight / platformCount; //height of grid divided by number of platforms
         let platformBottom = 100 + i * platformGap; //varying vertical gap between platforms
         let newPlatform = new Platform(platformBottom);
         platformArray.push(newPlatform);
@@ -50,16 +55,17 @@ function movePlatforms() {
         platformElement.bottom -= 4;
         let platform = platformElement.platform;
         platform.style.bottom = platformElement.bottom + 'px';
-
+        
         if(platformElement.bottom < 1) { //making platforms disappear as they reach the bottom of the screen
             let firstPlatform = platformArray[0].platform;
             firstPlatform.classList.remove('platform');
             platformArray.shift();
-            let newPlatform = new Platform(600); //add new platforms coming in from the top
+            let newPlatform = new Platform(gridHeight); //add new platforms coming in from the top
             platformArray.push(newPlatform);
-            score++;
+            score+=10;
+            scoreCard.innerHTML= "Score:" + score;
         }
-    })
+    })    
     }
 }
 
@@ -73,6 +79,7 @@ function gameOver() {
     while(grid.firstChild) {
         grid.firstChild.remove();
     }
+    gameEndMessage.innerHTML = "Game Over <br/> Score: " + score;
 }
 
 
@@ -114,10 +121,10 @@ function jump() {
     upTimer = setInterval(function () {
         doodlerBottomSpace += 20;
         doodler.style.bottom = doodlerBottomSpace + 'px';
-        if(doodlerBottomSpace > startPoint + 100) {
+        if(doodlerBottomSpace > startPoint + 300) {
             fall();
         }
-    }, 30);
+    }, 20);
 }
 
 function moveLeft() {
@@ -132,7 +139,7 @@ function moveLeft() {
         else {
             moveRight();
         }
-    }, 40)
+    }, 20)
 }
    
 
@@ -141,19 +148,19 @@ function moveRight() {
     isLeft = false;
     isRight = true;
     rightTimer = setInterval(function() {
-    if(doodlerLeftSpace <= 340) { //grid width minus doodler width, to keep the doodler within the grid
+    if(doodlerLeftSpace <= gridWidth - 60) { //grid width minus doodler width, to keep the doodler within the grid
         doodlerLeftSpace += 5;
         doodler.style.left = doodlerLeftSpace + 'px';
     }
     else {
         moveLeft();
     }
-}, 40)
+}, 20)
 }
 
 function moveStraight() {    
     if(doodlerBottomSpace > 20) {
-        doodlerBottomSpace += 20;
+        doodlerBottomSpace += 10;
         doodler.style.bottom = doodlerBottomSpace + 'px';
     }
     clearInterval(rightTimer);
@@ -166,11 +173,13 @@ function start() {
     if(!isGameOver) {
         createPlatform();
         createDoodler();  
-        //grid.innerHTML = score;
-        setInterval(movePlatforms, 30);
+        setInterval(movePlatforms, 20);
         jump();
         document.addEventListener("keyup", control);
+              
     }
 }
+
+
 
 start();
